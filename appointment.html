@@ -23,6 +23,7 @@
         <li class="nav-item"><a class="nav-link" href="services.html">Medical Services</a></li>
         <li class="nav-item"><a class="nav-link active" href="appointment.html">Appointment</a></li>
         <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+        <li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
       </ul>
     </div>
   </div></nav></header>
@@ -48,44 +49,55 @@
           </div>
 
           <div class="apt-form">
-            <form id="appointmentForm" novalidate>
+            <form id="appointmentForm" action="process_appointment.php" method="POST" enctype="multipart/form-data" novalidate>
               <h4>Patient Information</h4>
               <div class="row g-3 mt-2">
                 <div class="col-md-6">
-                  <label class="form-label">First Name *</label>
-                  <input id="firstName" class="form-control" required>
+                  <label class="form-label">First Name </label>
+                  <input id="firstName" name="first_name" class="form-control" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Last Name *</label>
-                  <input id="lastName" class="form-control" required>
+                  <label class="form-label">Last Name </label>
+                  <input id="lastName" name="last_name" class="form-control" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Phone Number *</label>
-                  <input id="phone" class="form-control" placeholder="(+213)0.00.00.00.00" required>
+                  <label class="form-label">Phone Number </label>
+                  <input id="phone" name="phone" class="form-control" required pattern="0\d{9}" placeholder="(+213)0.00.00.00.00" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Email Address *</label>
-                  <input id="email" type="email" class="form-control" required>
+                  <label class="form-label">Email Address </label>
+                  <input id="email" name="email" type="email" class="form-control" required>
                 </div>
 
                 <div class="col-md-6">
                   <label class="form-label">Date of Birth</label>
-                  <input id="dob" type="date" class="form-control">
+                  <input id="dob" name="birthdate" type="date" class="form-control" required>
                   <small id="ageDisplay" class="text-muted"></small>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Gender</label>
-                  <select id="gender" class="form-control">
+                  <select id="gender" name="gender" class="form-control" required>
                     <option value="">Select Gender</option>
                     <option>Male</option><option>Female</option>
                   </select>
                 </div>
 
+                 <div class="col-12">
+                  <label class="form-label">Address</label>
+                  <textarea 
+                    id="address" 
+                    name="address" 
+                    class="form-control" 
+                    rows="2" 
+                    placeholder="Enter your full address" required></textarea>
+                </div>
+               
+
                 <div class="col-12 border-top pt-3"><h5>Appointment Details</h5></div>
 
                 <div class="col-md-6">
                   <label class="form-label">Requested Service</label>
-                  <select id="departmentSelect" class="form-control">
+                  <select id="departmentSelect" name="requested_service" class="form-control" required>
                     <option>General Consultation</option>
                     <option>Cardiology</option>
                     <option>Pediatrics</option>
@@ -97,7 +109,7 @@
 
                 <div class="col-md-6">
                   <label class="form-label">Select a specific doctor</label>
-                  <select id="preferredDoctor" class="form-control">
+                  <select id="preferredDoctor" name="selected_doctor" class="form-control" required>
                     <option>Any Available Doctor</option>
                     <option>Dr. James Wilson</option>
                     <option>Dr. Emily Chen</option>
@@ -106,20 +118,25 @@
 
                 <div class="col-md-6">
                   <label class="form-label">Preferred Date</label>
-                  <input id="preferredDate" type="date" class="form-control">
+                  <input id="preferredDate" name="preferred_date" type="date" class="form-control" required>
                 </div>
 
                 <div class="col-md-6" id="timeSlotGroup">
                     <label class="form-label">Preferred Time Slot</label>
-                    <select id="timeSlot" class="form-control">
+                    <select id="timeSlot" name="preferred_time" class="form-control" required>
                         <option value="">Select time</option>
                     </select>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Upload Medical File (PDF, JPG, PNG)</label>
+                  <input type="file" name="medical_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
                 </div>
 
 
                 <div class="col-12">
                   <label class="form-label">Allergies / Medical History</label>
-                  <textarea id="medicalHistory" class="form-control" rows="4" placeholder="Please describe..."></textarea>
+                  <textarea id="medicalHistory" name="allergies_history" class="form-control" rows="4" placeholder="Please describe..." required></textarea>
                 </div>
 
                 <div class="col-12">

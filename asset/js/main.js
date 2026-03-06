@@ -1,4 +1,3 @@
-// main.js - shared JS (requires jQuery & Bootstrap 5)
 $(document).ready(function() {
   // NAV hover subtle animation
   $('.nav-link').hover(function(){
@@ -66,50 +65,51 @@ $(document).ready(function() {
       $sel.append($('<option>').val(name).text(name));
     });
   }
+  $('#departmentSelect').on('change', function(){
+    var dept = $(this).val();
+    updateDoctorOptions(dept);
+  });
 
-$('#preferredDate').on('change', function(){
+  $('#preferredDate').on('change', function(){
+    const selected = $(this).val();
+    if(!selected) return;
 
-  const selected = $(this).val();
-  if(!selected) return;
+    const date = new Date(selected);
+    const day = date.getDay(); 
+    // saturday=6 | friday=5 | sunday=0
+    const timeSlot = $('#timeSlot');
 
-  const date = new Date(selected);
-  const day = date.getDay(); 
-  // saturday=6 | friday=5 | sunday=0
-  const timeSlot = $('#timeSlot');
+    timeSlot.empty();
+    timeSlot.append('<option value="">Select time</option>');
 
-  timeSlot.empty();
-  timeSlot.append('<option value="">Select time</option>');
+    // closed on friday
+    if(day === 5){
+      timeSlot.append('<option disabled>No availability on Friday</option>');
+      return;
+    }
 
-  // closed on friday
-  if(day === 5){
-    timeSlot.append('<option disabled>No availability on Friday</option>');
-    return;
+    let start = 8;
+    let end   = 18;
+
+    // saturday 
+    if(day === 6){
+      start = 9;
+      end   = 15;
+    }
+
+    for(let h=start; h < end; h++){
+      let from = formatTime(h);
+      let to   = formatTime(h+1);
+      timeSlot.append(`<option>${from} - ${to}</option>`);
+    }
+  });
+
+  function formatTime(hour){
+    const ampm = hour >= 12 ? "PM" : "AM";
+    let h = hour % 12;
+    if(h === 0) h = 12;
+    return `${String(h).padStart(2,'0')}:00 ${ampm}`;
   }
-
-  let start = 8;
-  let end   = 18;
-
-//saturday 
-  if(day === 6){
-    start = 9;
-    end   = 15;
-  }
-
-  for(let h=start; h < end; h++){
-    let from = formatTime(h);
-    let to   = formatTime(h+1);
-    timeSlot.append(`<option>${from} - ${to}</option>`);
-  }
-
-});
-
-
-function formatTime(hour){
-  const ampm = hour >= 12 ? "PM" : "AM";
-  let h = hour % 12;
-  if(h === 0) h = 12;
-  return `${String(h).padStart(2,'0')}:00 ${ampm}`;
-}
 
   // date of birth -> calculate age live
   $(document).on('change', '#dob', function(){
@@ -126,53 +126,49 @@ function formatTime(hour){
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   }
 
-  // Appointment form validation & submit
-  $('#appointmentForm').on('submit', function(e){
+  // Appointment form validation & submit - FIXED VERSION
+  $('#appointmentForm').on('submit', function (e) {
+
+  $('.field-error').remove();
+  let valid = true;
+
+  function showError($el, msg) {
+    valid = false;
+    $('<div class="field-error text-danger small mt-1">')
+      .text(msg)
+      .insertAfter($el);
+  }
+
+  let firstName = $('#firstName').val().trim();
+  let lastName  = $('#lastName').val().trim();
+  let phone     = $('#phone').val().replace(/\s+/g, '');
+  let email     = $('#email').val().trim();
+  let dept      = $('#departmentSelect').val();
+
+  if (!firstName) showError($('#firstName'), 'First name is required');
+  if (!lastName)  showError($('#lastName'), 'Last name is required');
+  if (!phone || phone.length < 10) showError($('#phone'), 'Enter a valid phone number');
+  if (!validateEmail(email)) showError($('#email'), 'Enter a valid email');
+  if (!dept) showError($('#departmentSelect'), 'Select a department');
+
+  // validate time only if visible
+  let timeSlotGroup = $('#timeSlotGroup');
+  if (timeSlotGroup.length && timeSlotGroup.is(':visible')) {
+    let ts = $('#timeSlot').val();
+    if (!ts) showError($('#timeSlot'), 'Select a time slot');
+  }
+
+  /* ⛔ فقط إذا كاين أخطاء نحبسو الإرسال */
+  if (!valid) {
     e.preventDefault();
-    var valid = true;
-    $('.field-error').remove();
+    $('html,body').animate({
+      scrollTop: $('#appointmentForm').offset().top - 80
+    }, 300);
+  }
 
-    function showError($el, msg){
-      valid = false;
-      var $err = $('<div class="field-error text-danger small mt-1">').text(msg);
-      $el.after($err);
-    }
+  /* ✅ إذا valid = true الفورم يروح للـ PHP عادي */
+});
 
-    var firstName = $('#firstName').val().trim();
-    var lastName  = $('#lastName').val().trim();
-    var phone     = $('#phone').val().replace(/\s+/g,'');
-    var email     = $('#email').val().trim();
-    var dept      = $('#departmentSelect').val();
-
-    if(!firstName) showError($('#firstName'), 'First name is required');
-    if(!lastName) showError($('#lastName'), 'Last name is required');
-    if(!phone || phone.length < 6) showError($('#phone'), 'Enter a valid phone number');
-    if(!validateEmail(email)) showError($('#email'), 'Enter a valid email');
-    if(!dept) showError($('#departmentSelect'), 'Select a department');
-
-    // if special consultation show time slot validation
-      var ts = $('#timeSlot').val();
-      if(!ts) showError($('#timeSlot'), 'Select a time slot');
-    
-
-    if(!valid){
-      $('html,body').animate({scrollTop: $('.apt-form').offset().top - 80}, 300);
-      return;
-    }
-
-    // if valid -> show inline success
-    var $btn = $('#appointmentSubmit');
-    $btn.prop('disabled', true).text('Submitting...');
-    setTimeout(function(){
-      $btn.prop('disabled', false).text('Submit Appointment Request');
-      var success = $('<div class="alert alert-success mt-3">').text('Appointment request submitted. We will contact you within 24 hours.');
-      $('#appointmentForm').prepend(success);
-      $('html,body').animate({scrollTop: $('.apt-form').offset().top - 80}, 300);
-      $('#appointmentForm')[0].reset();
-      $('#ageDisplay').text('');
-      updateDoctorOptions('General Consultation');
-    }, 900); // simulate server
-  });
 
   function validateEmail(email){
     var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
