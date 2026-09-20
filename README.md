@@ -7,6 +7,7 @@ A secure and feature-rich clinic management web application built with **PHP, My
 This project simulates a real-world healthcare management platform, combining modern web technologies with essential security practices. It provides administrators with powerful tools to organize clinic operations while maintaining a responsive and user-friendly experience across desktop and mobile devices.
 
 Beyond basic CRUD functionality, the application emphasizes secure authentication, data validation, and protection against common web vulnerabilities, making it an excellent educational and portfolio project for full-stack web development.
+
 Live Demo of frontend: https://healthcareclinic25.netlify.app/
 
 ## Key Features
